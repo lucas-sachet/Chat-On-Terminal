@@ -1,7 +1,24 @@
+import ComponentsBuilder from './components.js'
+
 export default class TerminalController {
   constructor() {}
 
+  #onInputReceived(eventEmitter) {
+    return function() {
+      const message = this.getValue()
+      console.log(message)
+      this.clearValue()
+    }
+  }
+
   async initializeTable(eventEmitter) {
-    console.log("Inicialized");
+    const components = new ComponentsBuilder()
+      .setScreen({ title: 'TermChat - Lucas Sachet'})
+      .setLayoutComponent()
+      .setInputComponent(this.#onInputReceived(eventEmitter))
+      .build()
+
+      components.input.focus()
+      components.screen.render()
   }
 }
