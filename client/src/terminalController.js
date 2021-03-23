@@ -1,4 +1,7 @@
 import ComponentsBuilder from './components.js'
+import { constants } from './constants.js'
+
+
 
 export default class TerminalController {
   #usersCollors = new Map()
@@ -37,6 +40,7 @@ export default class TerminalController {
   }
 
   #onLogChanged({ screen, activityLog }) {
+    //left or join
     return msg => { 
 
       const [userName] = msg.split(/\s/)
@@ -47,9 +51,27 @@ export default class TerminalController {
     }
   }
 
+  #onStatusChanged({ screen, status }) {
+    //[users]
+    return users => { 
+
+      const { content } = status.items.shift()
+      status.clearItems()
+      status.addItem(content)
+
+      users.forEach(userName =>{
+        const collor = this.#getUserCollor(userName)
+        status.addItem(`{${collor}}{bold}${userName}{/}`)
+      })
+
+      screen.render()
+    }
+  }
+
   #registerEvents(eventEmitter, components) {
-    eventEmitter.on('message:received', this.#onMessageReceived(components))
-    eventEmitter.on('activityLog:updated', this.#onLogChanged(components))
+    eventEmitter.on(constants.events.app.MESSAGE_RECEIVED, this.#onMessageReceived(components))
+    eventEmitter.on(constants.events.app.ACTIVITYLOG_UPDATED, this.#onLogChanged(components))
+    eventEmitter.on(constants.events.app.STATUS_UPDATED, this.#onStatusChanged(components))
   }
 
   async initializeTable(eventEmitter) {
@@ -68,11 +90,16 @@ export default class TerminalController {
       components.screen.render()
 
       setInterval(() => {
-        eventEmitter.emit('message:received', {message: 'hello', userName: 'Pew' })
-        eventEmitter.emit('message:received', {message: 'hello', userName: 'Ala' })
-        eventEmitter.emit('message:received', {message: 'hello', userName: 'By' })
-        eventEmitter.emit('activityLog:updated', 'By left' )
-        eventEmitter.emit('activityLog:updated', 'By join' )
-      }, 2000)
+        const users = ['Pew']
+        eventEmitter.emit(constants.events.app.STATUS_UPDATED, users)
+        users.push('Wendel')
+        eventEmitter.emit(constants.events.app.STATUS_UPDATED, users)
+        users.push('User02', 'User04')
+        eventEmitter.emit(constants.events.app.STATUS_UPDATED, users)
+        eventEmitter.emit(constants.events.app.MESSAGE_RECEIVED, {message: 'hello', userName: 'Ala' })
+        eventEmitter.emit(constants.events.app.MESSAGE_RECEIVED, {message: 'hello', userName: 'By' })
+        eventEmitter.emit(constants.events.app.ACTIVITYLOG_UPDATED, 'By left' )
+        eventEmitter.emit(constants.events.app.ACTIVITYLOG_UPDATED, 'By join' )
+      })
   }
 }
