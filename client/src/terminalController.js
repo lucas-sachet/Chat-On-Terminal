@@ -16,6 +16,7 @@ export default class TerminalController {
       .setScreen({ title: 'TermChat - Lucas Sachet'})
       .setLayoutComponent()
       .setInputComponent(this.#onInputReceived(eventEmitter))
+      .setChatComponent()
       .build()
 
       components.input.focus()
