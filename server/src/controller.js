@@ -1,5 +1,8 @@
+import { constants } from "./constants";
+
 export default class Controller {
   #users = new Map()
+  #rooms = new Map()
 
   constructor({ socketServer }) {
     this.socketServer = socketServer
@@ -14,6 +17,32 @@ export default class Controller {
     socket.on('error', this.#onSocketClosed(id))
     socket.on('end', this.#onSocketClosed(id))
   }
+  async joinRoom(socketId, data) {
+    const userData = data
+        console.log(`${userData.userName} joined! ${[socketId]}`)
+        const user = this.#updateGlobalUserData(socketId, userData)
+
+        const { roomId } = userData
+        const users = this.#joinUserOnRoom(roomId, user)
+
+  }
+
+  #joinUserOnRoom(roomId, user) {
+    const usersOnRoom = this.#rooms.get(roomId) ?? new Map()
+    usersOnRoom.set(user.id, user)
+    this.#rooms.set(roomId, usersOnRoom)
+
+    const currentUsers = Array.from(users.values())
+      .map(({ id, userName }) => ({ userName, id }))
+
+    //  atualiza o usuario que conectou sobre todos os usuarios
+    // que ja estao conectados na mesma sala
+    this.socketServer
+      .sendMessage(user.socket, constants.event.UPDATE_USERS, currentUsers)
+
+
+    return usersOnRoom
+  }
 
   #onSocketClosed(id) {
     return data => {
@@ -23,8 +52,13 @@ export default class Controller {
 
   #onSocketData(id) {
     return data => {
-      console.log('onSocketData', data.toString());
-    }
+      try {
+          const { event, message } = JSON.parse(data)
+          this[event](id, message)
+      } catch (error) {
+          console.error(`wrong event format!!`, data.toString())
+      }
+  }
   }
 
   #updateGlobalUserData(socketId, userData) {
