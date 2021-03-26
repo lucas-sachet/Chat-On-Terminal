@@ -1,4 +1,4 @@
-import { constants } from "./constants";
+import { constants } from "./constants.js";
 
 export default class Controller {
   #users = new Map()
@@ -19,11 +19,20 @@ export default class Controller {
   }
   async joinRoom(socketId, data) {
     const userData = data
-        console.log(`${userData.userName} joined! ${[socketId]}`)
-        const user = this.#updateGlobalUserData(socketId, userData)
+      console.log(`${userData.userName} joined! ${[socketId]}`)
+      const user = this.#updateGlobalUserData(socketId, userData)
 
-        const { roomId } = userData
-        const users = this.#joinUserOnRoom(roomId, user)
+      const { roomId } = userData
+      const users = this.#joinUserOnRoom(roomId, user)
+
+      const currentUsers = Array.from(users.values())
+        .map(({ id, userName }) => ({ userName, id }))
+
+      //  atualiza o usuario que conectou sobre todos os usuarios
+      // que ja estao conectados na mesma sala
+      this.socketServer
+        .sendMessage(user.socket, constants.event.UPDATE_USERS, currentUsers)
+
 
   }
 
@@ -31,15 +40,6 @@ export default class Controller {
     const usersOnRoom = this.#rooms.get(roomId) ?? new Map()
     usersOnRoom.set(user.id, user)
     this.#rooms.set(roomId, usersOnRoom)
-
-    const currentUsers = Array.from(users.values())
-      .map(({ id, userName }) => ({ userName, id }))
-
-    //  atualiza o usuario que conectou sobre todos os usuarios
-    // que ja estao conectados na mesma sala
-    this.socketServer
-      .sendMessage(user.socket, constants.event.UPDATE_USERS, currentUsers)
-
 
     return usersOnRoom
   }
