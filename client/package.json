@@ -5,9 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "user01": "node index.js --username Pew  --room sala101  --hostUri localhost",
-    "user02": "node index.js --username John  --room sala101  --hostUri localhost",
-    "user03": "node index.js --username Anne  --room sala101  --hostUri https://localhost:9898",
+    "user01": "node index.js --username Pew  --room sala101  --hostUri http://localhost:9898",
+    "user02": "node index.js --username John  --room sala101  --hostUri http://localhost:9898",
+    "user03": "node index.js --username Anne  --room sala101  --hostUri http://localhost:9898",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

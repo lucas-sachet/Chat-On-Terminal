@@ -1,24 +1,18 @@
 export default class Controller {
   #users = new Map()
 
-  constructor({ socketServer}) {
+  constructor({ socketServer }) {
     this.socketServer = socketServer
   }
   onNewConnection(socket) {
     const { id } = socket;
     console.log('connection stablished with ', id);
     const userData = { id, socket }
-    tihs.#updateGlobalUserData(id, userData)
+    this.#updateGlobalUserData(id, userData)
 
     socket.on('data', this.#onSocketData(id))
     socket.on('error', this.#onSocketClosed(id))
     socket.on('end', this.#onSocketClosed(id))
-  }
-
-  #onSocketData(id) {
-    return data => {
-      console.log('onSocketData', data.toString());
-    }
   }
 
   #onSocketClosed(id) {
@@ -27,16 +21,22 @@ export default class Controller {
     }
   }
 
+  #onSocketData(id) {
+    return data => {
+      console.log('onSocketData', data.toString());
+    }
+  }
+
   #updateGlobalUserData(socketId, userData) {
     const users = this.#users
     const user = users.get(socketId) ?? {}
 
-    const updateUserData = {
+    const updatedUserData = {
       ...user,
       ...userData
     }
 
-    users.set(socketId, updateUserData)
+    users.set(socketId, updatedUserData)
 
     return users.get(socketId)
   }

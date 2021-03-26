@@ -1,4 +1,4 @@
-import http from 'https'
+import http from 'http'
 import { v4 } from 'uuid'
 import { constants } from './constants.js'
 
@@ -17,7 +17,7 @@ export default class SocketServer {
       socket.id = v4()
       const headers = [
         'HTTP/1.1 101 Web Socket Protocol Handshake',
-        'Upgrade WebSocket',
+        'Upgrade: WebSocket',
         'Connection: Upgrade',
         ''
       ].map(line => line.concat('\r\n')).join('')
