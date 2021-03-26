@@ -28,13 +28,30 @@ export default class Controller {
       const currentUsers = Array.from(users.values())
         .map(({ id, userName }) => ({ userName, id }))
 
-      //  atualiza o usuario que conectou sobre todos os usuarios
-      // que ja estao conectados na mesma sala
+      //  update the connected user to all users
+      // that already are in the same room
       this.socketServer
         .sendMessage(user.socket, constants.event.UPDATE_USERS, currentUsers)
 
-
+      // tell network a new user connected
+      this.broadCast({
+        socketId,
+        roomId,
+        message: { id: socketId, userName: userData.userName},
+        event: constants.event.NEW_USER_CONNECTED,
+      })
   }
+
+  broadCast({ socketId, roomId, event, message, includeCurrentSocket = false }) {
+    const usersOnRoom = this.#rooms.get(roomId)
+
+    for (const [key, user] of usersOnRoom) {
+      if(!includeCurrentSocket && key === socketId) continue;
+
+      this.socketServer.sendMessage(user.socket, event, message)
+    }
+
+  } 
 
   #joinUserOnRoom(roomId, user) {
     const usersOnRoom = this.#rooms.get(roomId) ?? new Map()
