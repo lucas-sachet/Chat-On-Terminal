@@ -61,9 +61,25 @@ export default class Controller {
     return usersOnRoom
   }
 
+  #logoutUser(id, roomId) {
+    this.#users.delete(id)
+    const usersOnRoom = this.#rooms.get(roomId)
+    usersOnRoom.delete(id)
+
+    this.#rooms.set(roomId, usersOnRoom)
+  }
+
   #onSocketClosed(id) {
-    return data => {
-      console.log('onSocketClosed', data.toString());
+    return _ => {
+      const {userName, roomId} = this.#users.get(id)
+      console.log(userName, 'disconnected!', id)
+      this.#logoutUser(id, roomId)
+      this.broadCast({
+        roomId,
+        message: { id, userName },
+        socketId: id,
+        event: constants.event.DISCONNECT_USER
+      })
     }
   }
 
