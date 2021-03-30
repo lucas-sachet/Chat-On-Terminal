@@ -25,7 +25,6 @@
   <img src="./assets/example.jpg" alt="projectExample" width="700px" height="500px" />
 </p>
   <p align="center">
-    An awesome README template to jumpstart your projects!
     <br />
     <a href="https://github.com/lucas-sachet/Chat-On-Terminal"><strong>Explore the docs »</strong></a>
     <br />
